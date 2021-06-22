@@ -3,15 +3,19 @@
 
 #define MOD Mod4Mask
 
-const char* menu[]    = {"dmenu_run",      0};
-const char* term[]    = {"st",             0};
-const char* scrot[]   = {"scr",            0};
+const char* menu[]    = {"rofi", "-modi", "drun,run", "-show", "drun", 0};
+const char* term[]    = {"x-terminal-emulator", 0};
+const char* scrot[]   = {"scrot", 0};
 const char* briup[]   = {"bri", "10", "+", 0};
 const char* bridown[] = {"bri", "10", "-", 0};
-const char* voldown[] = {"amixer", "sset", "Master", "5%-",         0};
-const char* volup[]   = {"amixer", "sset", "Master", "5%+",         0};
-const char* volmute[] = {"amixer", "sset", "Master", "toggle",      0};
-const char* colors[]  = {"bud", "/home/goldie/Pictures/Wallpapers", 0};
+const char* voldown[] = {"pamixer", "-d", "5", "-u", 0};
+const char* volup[]   = {"pamixer", "-i", "5", "-u", 0};
+const char* volmute[] = {"pamixer", "-t", 0};
+const char* lock[]    = {"xscreensaver-command", "-lock", 0};
+
+const char* mpc_toggle[] = {"mpc", "toggle", 0};
+const char* mpc_next[] = {"mpc", "next", 0};
+const char* mpc_prev[] = {"mpc", "prev", 0};
 
 static struct key keys[] = {
     {MOD,      XK_q,   win_kill,   {0}},
@@ -22,13 +26,16 @@ static struct key keys[] = {
     {Mod1Mask|ShiftMask, XK_Tab, win_prev,   {0}},
 
     {MOD, XK_d,      run, {.com = menu}},
-    {MOD, XK_w,      run, {.com = colors}},
+    {MOD, XK_l,      run, {.com = lock}},
     {MOD, XK_p,      run, {.com = scrot}},
     {MOD, XK_Return, run, {.com = term}},
 
     {0,   XF86XK_AudioLowerVolume,  run, {.com = voldown}},
     {0,   XF86XK_AudioRaiseVolume,  run, {.com = volup}},
     {0,   XF86XK_AudioMute,         run, {.com = volmute}},
+    {0,   XF86XK_AudioPlay,         run, {.com = mpc_toggle}},
+    {0,   XF86XK_AudioNext,         run, {.com = mpc_next}},
+    {0,   XF86XK_AudioPrev,         run, {.com = mpc_prev}},
     {0,   XF86XK_MonBrightnessUp,   run, {.com = briup}},
     {0,   XF86XK_MonBrightnessDown, run, {.com = bridown}},
 
