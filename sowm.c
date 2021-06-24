@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <unistd.h>
+#include <string.h>
+#include <stdio.h>
 
 #include "sowm.h"
 
@@ -17,6 +19,7 @@ static unsigned int ww, wh;
 static Display      *d;
 static XButtonEvent mouse;
 static Window       root;
+static GC           gc;
 
 static void (*events[LASTEvent])(XEvent *e) = {
     [ButtonPress]      = button_press,
@@ -27,7 +30,8 @@ static void (*events[LASTEvent])(XEvent *e) = {
     [MappingNotify]    = mapping_notify,
     [DestroyNotify]    = notify_destroy,
     [EnterNotify]      = notify_enter,
-    [MotionNotify]     = notify_motion
+    [MotionNotify]     = notify_motion,
+    [PropertyNotify]   = notify_property
 };
 
 #include "config.h"
@@ -62,6 +66,10 @@ void notify_motion(XEvent *e) {
         wy + (mouse.button == 1 ? yd : 0),
         MAX(1, ww + (mouse.button == 3 ? xd : 0)),
         MAX(1, wh + (mouse.button == 3 ? yd : 0)));
+}
+
+void notify_property(XEvent *e) {
+    draw_bar();
 }
 
 void key_press(XEvent *e) {
@@ -267,6 +275,32 @@ void input_grab(Window root) {
     XFreeModifiermap(modmap);
 }
 
+void draw_bar() {
+    int s;
+    unsigned long black, white;
+    char * name;
+    size_t len;
+
+    s = DefaultScreen(d);
+    black = BlackPixel(d, s);
+    white = WhitePixel(d, s);
+
+    if(XFetchName(d, root, &name) == 0) return;
+
+    len = strlen(name);
+
+    XSetBackground(d, gc, black);
+
+    XSetForeground(d, gc, black);
+    XFillRectangle(d, root, gc, 0, sh-12, 2 + len*6, 12);
+
+    XSetForeground(d, gc, white);
+    XDrawString(d, root, gc, 1, sh-1, name, len);
+
+    XFlush(d);
+    XFree(name);
+}
+
 int main(void) {
     XEvent ev;
 
@@ -279,8 +313,9 @@ int main(void) {
     root  = RootWindow(d, s);
     sw    = XDisplayWidth(d, s);
     sh    = XDisplayHeight(d, s);
+    gc    = DefaultGC(d, s);
 
-    XSelectInput(d,  root, SubstructureRedirectMask);
+    XSelectInput(d,  root, SubstructureRedirectMask | PropertyChangeMask);
     XDefineCursor(d, root, XCreateFontCursor(d, 68));
     input_grab(root);
 

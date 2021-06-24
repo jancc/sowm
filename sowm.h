@@ -43,6 +43,7 @@ void mapping_notify(XEvent *e);
 void notify_destroy(XEvent *e);
 void notify_enter(XEvent *e);
 void notify_motion(XEvent *e);
+void notify_property(XEvent *e);
 void run(const Arg arg);
 void win_add(Window w);
 void win_center(const Arg arg);
@@ -54,5 +55,6 @@ void win_prev(const Arg arg);
 void win_next(const Arg arg);
 void win_to_ws(const Arg arg);
 void ws_go(const Arg arg);
+void draw_bar();
 
 static int xerror() { return 0; }
